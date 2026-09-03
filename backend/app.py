@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import joblib
 import pandas as pd
 import numpy as np
 import json
+import os
 from datetime import datetime
 
 from utils import create_features
@@ -12,15 +13,36 @@ from utils import create_features
 app = Flask(__name__)
 CORS(app)
 
+
+# ==========================================
+# FRONTEND LOCATION
+# ==========================================
+
+FRONTEND_FOLDER = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "frontend"
+)
+
+
+@app.route("/dashboard")
+def dashboard():
+    return send_from_directory(
+        FRONTEND_FOLDER,
+        "index.html"
+    )
+
+
 print("==========================================")
 print("       KANNI-03 AI TRAFFIC OPTIMIZER")
 print("==========================================")
 
 print("Loading model...")
 
+
 model = joblib.load("traffic_model.pkl")
 label_encoders = joblib.load("label_encoders.pkl")
 feature_columns = joblib.load("feature_columns.pkl")
+
 
 print("✅ XGBoost model loaded and fitted")
 print("✅ Label encoders loaded")
@@ -37,10 +59,12 @@ HISTORY_FILE = "traffic_history.json"
 def load_history():
 
     try:
+
         with open(HISTORY_FILE, "r") as f:
             return json.load(f)
 
     except:
+
         return []
 
 
