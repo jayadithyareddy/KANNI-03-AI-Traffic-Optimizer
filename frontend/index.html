@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KANNI-03 | Traffic Optimizer</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #17212b;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #38bdf8;
+        }
+
+        .header-right {
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        /* HERO */
+
+        .hero {
+            background: white;
+            padding: 35px 7%;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .hero h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* CONTAINER */
+
+        .container {
+            width: 86%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        /* GRID */
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        /* FORM */
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #475569;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 43px;
+            padding: 0 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            background: white;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .full-width {
+            margin-top: 18px;
+        }
+
+        /* BUTTON */
+
+        .predict-btn {
+            width: 100%;
+            height: 48px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 5px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .predict-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .predict-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* RESULT */
+
+        .result-main {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .prediction-number {
+            font-size: 55px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .prediction-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 18px;
+        }
+
+        .result-box-title {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .result-box-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* CONGESTION COLORS */
+
+        .low {
+            color: #15803d;
+        }
+
+        .medium {
+            color: #ca8a04;
+        }
+
+        .high {
+            color: #dc2626;
+        }
+
+        /* TRAFFIC STATUS */
+
+        .traffic-status {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .traffic-status-title {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .traffic-lights {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .light {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .red.active {
+            background: #dc2626;
+        }
+
+        .yellow.active {
+            background: #eab308;
+        }
+
+        .green.active {
+            background: #16a34a;
+        }
+
+        /* RECOMMENDATION */
+
+        .recommendation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ANALYTICS */
+
+        .analytics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 22px;
+        }
+
+        .stat-title {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        /* CHART */
+
+        .chart-card {
+            margin-top: 25px;
+        }
+
+        .chart-container {
+            height: 330px;
+            margin-top: 20px;
+        }
+
+        /* HISTORY */
+
+        .history-card {
+            margin-top: 25px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .clear-btn {
+            border: 1px solid #dc2626;
+            background: white;
+            color: #dc2626;
+            padding: 9px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            padding: 13px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 13px;
+            font-size: 13px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge.low {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge.medium {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .badge.high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .empty {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px;
+        }
+
+        /* ERROR */
+
+        .error-message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            margin-top: 50px;
+            background: #17212b;
+            color: #94a3b8;
+            text-align: center;
+            padding: 22px;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 800px) {
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            header {
+                padding: 16px 4%;
+            }
+
+            .header-right {
+                display: none;
+            }
+
+            .hero {
+                padding: 25px 4%;
+            }
+
+            .hero h1 {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<header>
+
+    <div class="logo">
+        KANNI<span>-03</span>
+    </div>
+
+    <div class="header-right">
+        AI Traffic Optimizer
+    </div>
+
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <h1>Traffic Prediction Dashboard</h1>
+
+    <p>
+        Predict traffic conditions and determine recommended signal timing.
+    </p>
+
+</section>
+
+
+<div class="container">
+
+
+    <!-- INPUT + RESULT -->
+
+    <div class="main-grid">
+
+
+        <!-- INPUT -->
+
+        <div class="card">
+
+            <h2>Traffic Information</h2>
+
+            <p class="card-description">
+                Enter the current vehicle count and traffic conditions.
+            </p>
+
+
+            <div class="input-grid">
+
+
+                <div class="form-group">
+
+                    <label>Cars</label>
+
+                    <input
+                        id="car"
+                        type="number"
+                        min="0"
+                        value="20"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Bikes</label>
+
+                    <input
+                        id="bike"
+                        type="number"
+                        min="0"
+                        value="30"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Buses</label>
+
+                    <input
+                        id="bus"
+                        type="number"
+                        min="0"
+                        value="2"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Trucks</label>
+
+                    <input
+                        id="truck"
+                        type="number"
+                        min="0"
+                        value="40"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>Day of the Week</label>
+
+                <select id="day">
+
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option selected>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>Traffic Situation</label>
+
+                <select id="traffic">
+
+                    <option value="Low">
+                        Low
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium
+                    </option>
+
+                    <option value="High">
+                        High
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                id="predictButton"
+                class="predict-btn"
+                onclick="predict()"
+            >
+                PREDICT TRAFFIC
+            </button>
+
+
+            <div
+                id="errorMessage"
+                class="error-message"
+            ></div>
+
+        </div>
+
+
+        <!-- RESULT -->
+
+        <div class="card">
+
+            <h2>Prediction Result</h2>
+
+            <p class="card-description">
+                Result generated by the KANNI-03 traffic model.
+            </p>
+
+
+            <div class="result-main">
+
+                <div
+                    id="prediction"
+                    class="prediction-number"
+                >
+                    --
+                </div>
+
+                <div class="prediction-label">
+                    Predicted Traffic
+                </div>
+
+            </div>
+
+
+            <div class="result-grid">
+
+
+                <div class="result-box">
+
+                    <div class="result-box-title">
+                        Congestion Level
+                    </div>
+
+                    <div
+                        id="congestion"
+                        class="result-box-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <div class="result-box-title">
+                        Signal Time
+                    </div>
+
+                    <div
+                        id="signal"
+                        class="result-box-value"
+                    >
+                        -- seconds
+                    </div>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <div class="result-box-title">
+                        Current Vehicles
+                    </div>
+
+                    <div
+                        id="vehicles"
+                        class="result-box-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <div class="result-box-title">
+                        Status
+                    </div>
+
+                    <div
+                        id="status"
+                        class="result-box-value"
+                    >
+                        Waiting
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="traffic-status">
+
+                <div class="traffic-status-title">
+                    Traffic Signal Status
+                </div>
+
+                <div class="traffic-lights">
+
+                    <div
+                        id="red"
+                        class="light red"
+                    ></div>
+
+                    <div
+                        id="yellow"
+                        class="light yellow"
+                    ></div>
+
+                    <div
+                        id="green"
+                        class="light green"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="recommendation">
+
+                <strong>Recommendation:</strong>
+
+                <span id="recommendation">
+                    Run a prediction to receive a recommendation.
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ANALYTICS -->
+
+    <div class="analytics">
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Average Traffic
+            </div>
+
+            <div
+                id="average"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Highest Traffic
+            </div>
+
+            <div
+                id="highest"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Predictions
+            </div>
+
+            <div
+                id="predictionCount"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHART -->
+
+    <div class="card chart-card">
+
+        <h2>Traffic Prediction Trend</h2>
+
+        <p class="card-description">
+            Predicted traffic values from previous entries.
+        </p>
+
+        <div class="chart-container">
+
+            <canvas id="trafficChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- HISTORY -->
+
+    <div class="card history-card">
+
+
+        <div class="history-header">
+
+            <div>
+
+                <h2>Prediction History</h2>
+
+                <p class="card-description">
+                    Previous traffic predictions.
+                </p>
+
+            </div>
+
+
+            <button
+                class="clear-btn"
+                onclick="clearHistory()"
+            >
+                Clear History
+            </button>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No.</th>
+                        <th>Time</th>
+                        <th>Vehicles</th>
+                        <th>Prediction</th>
+                        <th>Congestion</th>
+                        <th>Signal</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyBody">
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty"
+                        >
+                            No predictions available.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<footer>
+
+    KANNI-03 AI Traffic Optimizer
+
+</footer>
+
+
+<script>
+
+
+const API_URL = "http://127.0.0.1:5000";
+
+
+let chart = null;
+
+
+/* =========================
+   PREDICT
+========================= */
+
+
+async function predict() {
+
+
+    const car =
+        Number(
+            document.getElementById("car").value
+        );
+
+
+    const bike =
+        Number(
+            document.getElementById("bike").value
+        );
+
+
+    const bus =
+        Number(
+            document.getElementById("bus").value
+        );
+
+
+    const truck =
+        Number(
+            document.getElementById("truck").value
+        );
+
+
+    const day =
+        document.getElementById("day").value;
+
+
+    const traffic =
+        document.getElementById("traffic").value;
+
+
+    const errorBox =
+        document.getElementById("errorMessage");
+
+
+    const button =
+        document.getElementById("predictButton");
+
+
+    errorBox.style.display = "none";
+
+
+    if (
+        car < 0 ||
+        bike < 0 ||
+        bus < 0 ||
+        truck < 0
+    ) {
+
+        showError(
+            "Vehicle counts cannot be negative."
+        );
+
+        return;
+
+    }
+
+
+    const total =
+        car + bike + bus + truck;
+
+
+    button.disabled = true;
+
+    button.innerText = "PREDICTING...";
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                API_URL + "/predict",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        "CarCount": car,
+
+                        "BikeCount": bike,
+
+                        "BusCount": bus,
+
+                        "TruckCount": truck,
+
+                        "Day of the week": day,
+
+                        "Traffic Situation": traffic
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Prediction failed."
+            );
+
+        }
+
+
+        const prediction =
+            Number(
+                data["Predicted Traffic"]
+            );
+
+
+        const congestion =
+            data["Congestion"];
+
+
+        const signal =
+            data["Signal Time"];
+
+
+        document.getElementById(
+            "prediction"
+        ).innerText =
+            prediction.toFixed(2);
+
+
+        document.getElementById(
+            "congestion"
+        ).innerText =
+            congestion;
+
+
+        document.getElementById(
+            "signal"
+        ).innerText =
+            signal + " seconds";
+
+
+        document.getElementById(
+            "vehicles"
+        ).innerText =
+            data["Current Vehicles"] ||
+            total;
+
+
+        document.getElementById(
+            "status"
+        ).innerText =
+            "Completed";
+
+
+        setCongestionColor(
+            congestion
+        );
+
+
+        updateTrafficLight(
+            congestion
+        );
+
+
+        updateRecommendation(
+            congestion,
+            signal
+        );
+
+
+        loadHistory();
+
+    }
+
+
+    catch(error) {
+
+        console.error(error);
+
+        showError(
+            "Unable to connect to the server. Make sure python app.py is running."
+        );
+
+    }
+
+
+    finally {
+
+        button.disabled = false;
+
+        button.innerText =
+            "PREDICT TRAFFIC";
+
+    }
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+
+function showError(message) {
+
+    const box =
+        document.getElementById(
+            "errorMessage"
+        );
+
+    box.innerText = message;
+
+    box.style.display = "block";
+
+}
+
+
+/* =========================
+   CONGESTION COLOR
+========================= */
+
+
+function setCongestionColor(level) {
+
+
+    const element =
+        document.getElementById(
+            "congestion"
+        );
+
+
+    element.classList.remove(
+        "low",
+        "medium",
+        "high"
+    );
+
+
+    if(level === "Low") {
+
+        element.classList.add("low");
+
+    }
+
+    else if(level === "Medium") {
+
+        element.classList.add("medium");
+
+    }
+
+    else if(level === "High") {
+
+        element.classList.add("high");
+
+    }
+
+}
+
+
+/* =========================
+   TRAFFIC LIGHT
+========================= */
+
+
+function updateTrafficLight(level) {
+
+
+    document
+        .getElementById("red")
+        .classList.remove("active");
+
+
+    document
+        .getElementById("yellow")
+        .classList.remove("active");
+
+
+    document
+        .getElementById("green")
+        .classList.remove("active");
+
+
+    if(level === "High") {
+
+        document
+            .getElementById("red")
+            .classList.add("active");
+
+    }
+
+    else if(level === "Medium") {
+
+        document
+            .getElementById("yellow")
+            .classList.add("active");
+
+    }
+
+    else if(level === "Low") {
+
+        document
+            .getElementById("green")
+            .classList.add("active");
+
+    }
+
+}
+
+
+/* =========================
+   RECOMMENDATION
+========================= */
+
+
+function updateRecommendation(
+    level,
+    signal
+) {
+
+
+    const box =
+        document.getElementById(
+            "recommendation"
+        );
+
+
+    if(level === "High") {
+
+        box.innerText =
+            "High congestion detected. Increase the green signal duration to " +
+            signal +
+            " seconds.";
+
+    }
+
+    else if(level === "Medium") {
+
+        box.innerText =
+            "Moderate traffic detected. Use a balanced signal duration of " +
+            signal +
+            " seconds.";
+
+    }
+
+    else {
+
+        box.innerText =
+            "Traffic is low. A shorter signal duration of " +
+            signal +
+            " seconds is recommended.";
+
+    }
+
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+
+async function loadHistory() {
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                API_URL + "/history"
+            );
+
+
+        if(!response.ok) {
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const history =
+            data.history || [];
+
+
+        document.getElementById(
+            "average"
+        ).innerText =
+            data.average || 0;
+
+
+        document.getElementById(
+            "highest"
+        ).innerText =
+            data.highest || 0;
+
+
+        document.getElementById(
+            "predictionCount"
+        ).innerText =
+            history.length;
+
+
+        const body =
+            document.getElementById(
+                "historyBody"
+            );
+
+
+        body.innerHTML = "";
+
+
+        if(history.length === 0) {
+
+
+            body.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+                        No predictions available.
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        else {
+
+
+            const latest =
+                [...history].reverse();
+
+
+            latest.forEach(
+                (item, index) => {
+
+
+                    const level =
+                        item.congestion ||
+                        "Medium";
+
+
+                    const levelClass =
+                        level.toLowerCase();
+
+
+                    body.innerHTML += `
+
+                        <tr>
+
+                            <td>
+                                ${index + 1}
+                            </td>
+
+                            <td>
+                                ${item.time || "--"}
+                            </td>
+
+                            <td>
+                                ${item.vehicles || "--"}
+                            </td>
+
+                            <td>
+                                ${item.prediction}
+                            </td>
+
+                            <td>
+
+                                <span
+                                    class="badge ${levelClass}"
+                                >
+                                    ${level}
+                                </span>
+
+                            </td>
+
+                            <td>
+                                ${item.signal || "--"} seconds
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            );
+
+        }
+
+
+        updateChart(history);
+
+    }
+
+
+    catch(error) {
+
+        console.log(
+            "History endpoint not available."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   CHART
+========================= */
+
+
+function updateChart(history) {
+
+
+    const labels =
+        history.map(
+            (item, index) =>
+                "Prediction " + (index + 1)
+        );
+
+
+    const values =
+        history.map(
+            item =>
+                Number(item.prediction)
+        );
+
+
+    const canvas =
+        document.getElementById(
+            "trafficChart"
+        );
+
+
+    if(chart) {
+
+        chart.destroy();
+
+    }
+
+
+    chart =
+        new Chart(
+            canvas,
+            {
+
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Predicted Traffic",
+
+                            data: values,
+
+                            borderWidth: 2,
+
+                            tension: 0.3,
+
+                            fill: false
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+}
+
+
+/* =========================
+   CLEAR HISTORY
+========================= */
+
+
+async function clearHistory() {
+
+
+    if(
+        !confirm(
+            "Clear all prediction history?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                API_URL +
+                "/clear-history",
+                {
+
+                    method: "POST"
+
+                }
+            );
+
+
+        if(!response.ok) {
+
+            throw new Error();
+
+        }
+
+
+        document.getElementById(
+            "prediction"
+        ).innerText = "--";
+
+
+        document.getElementById(
+            "congestion"
+        ).innerText = "--";
+
+
+        document.getElementById(
+            "signal"
+        ).innerText =
+            "-- seconds";
+
+
+        document.getElementById(
+            "vehicles"
+        ).innerText = "--";
+
+
+        document.getElementById(
+            "status"
+        ).innerText =
+            "Waiting";
+
+
+        document.getElementById(
+            "recommendation"
+        ).innerText =
+            "Run a prediction to receive a recommendation.";
+
+
+        setCongestionColor("");
+
+
+        updateTrafficLight("");
+
+
+        loadHistory();
+
+    }
+
+
+    catch(error) {
+
+        showError(
+            "Unable to clear history."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOAD WHEN PAGE OPENS
+========================= */
+
+
+loadHistory();
+
+
+</script>
+
+
+</body>
+
+</html>
